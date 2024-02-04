@@ -3,6 +3,9 @@ package AlgLin;
 import Abstracts.SysLinAbstract;
 import Exceptions.IrregularSysLinException;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+
 public class Helder extends SysLinAbstract {
 
     public Helder(Matrice matrice, Vecteur vect) throws IrregularSysLinException {
@@ -13,7 +16,7 @@ public class Helder extends SysLinAbstract {
         • public void factorLDR() qui remplace les coefficients de la matrice d'origine du système par
         les coefficients non nuls et non égaux à 1 des trois matrices L, D et R.
          */
-    public void factorLDR(){
+    public boolean factorLDR(){
         // on suppose que la matrice est bien une matrice carrée
         // source : http://fmdkdd.free.fr/files/MIS6_Analyse_Num%C3%A9rique.pdf
 
@@ -31,6 +34,8 @@ public class Helder extends SysLinAbstract {
                             this.matriceSystem.getCoef(k,j);
                 }
                 Lval = this.matriceSystem.getCoef(i,j) - Lval;
+
+                if(Lval == Double.valueOf(0)) return false;
 
                 Lval = Lval / this.matriceSystem.getCoef(j,j);
 
@@ -59,12 +64,15 @@ public class Helder extends SysLinAbstract {
                 }
 
                 Rval = this.matriceSystem.getCoef(i, j) - Rval;
+
+                if(Rval == Double.valueOf(0)) return false;
+
                 Rval = Rval / this.matriceSystem.getCoef(i, i);
                 this.matriceSystem.remplacecoef(i,j, Rval);
             }
 
         }
-
+        return true;
     }
 
     /*
@@ -73,7 +81,7 @@ public class Helder extends SysLinAbstract {
      */
     public Vecteur resolution(){
         // on factorise puis on trouve la solution.
-        factorLDR();
+        assert(factorLDR() == true);        // factorisation s'est bien passée
         return resolutionPartielle();
     }
     /*
@@ -186,7 +194,7 @@ public class Helder extends SysLinAbstract {
 
             Helder system = new Helder(matrice, sMembre);
 
-            system.factorLDR();
+            assert(system.factorLDR() == true);
 
             // afficher la factorisation de la matrice en LDR
             System.out.println("Matrice après factorisation");
@@ -206,6 +214,7 @@ public class Helder extends SysLinAbstract {
         }
 
 
+        // tester avec un exemple arbitraire
         try{
 
             System.out.println("\n\n");
@@ -222,7 +231,8 @@ public class Helder extends SysLinAbstract {
             Matrice matrice = new Matrice(tab);
             Helder system = new Helder(matrice, sMembre);
 
-            system.factorLDR();
+
+            assert(system.factorLDR() == true);
 
             // afficher la factorisation de la matrice en LDR
             System.out.println("Matrice après factorisation");
@@ -243,7 +253,113 @@ public class Helder extends SysLinAbstract {
             e.printStackTrace();
         }
 
-        // faut tester avec A²x = b
+
+        // tester avec A²x = b
+        try {
+            System.out.println("\n\n");
+
+            // acceder au dossier ressource
+            ClassLoader classLoader = Helder.class.getClassLoader();
+
+            // lire d'un fichier le matrice et le second membre
+
+
+
+            // lire le fichier de la matrice
+            File configFile= new File(classLoader.getResource("matrice.txt").getFile());
+            FileInputStream inputStream = new FileInputStream(configFile);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            Matrice matrice = new Matrice(reader);
+            Matrice matriceCopy = new Matrice();
+            matriceCopy.recopie(matrice);       // recopier matrice dans matriceCopy
+
+            // lire le fichier du vecteur
+            configFile = new File(classLoader.getResource("vecteur.txt").getFile());
+            inputStream = new FileInputStream(configFile);
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            Vecteur secondMembre = new Vecteur(reader);
+
+
+
+            // resoudre le system A²x = b
+            Helder system = new Helder(matrice,secondMembre);
+
+            System.out.println("A: \n"+ system.matriceSystem.toString());
+            // factoriser la matrice en LDR
+            assert(system.factorLDR() == true);
+
+            // résolution partielle pour
+            /*
+                on a A*A*x = b
+                ce qui nous donne A*LDR*x = b
+                Donc, on commence par Ay = b
+                et puis on résoud LDR*x = y
+             */
+
+            // on sait que matrice est une LDR
+
+            Vecteur y = system.resolutionPartielle();
+
+            System.out.println("Vecteur y: \n"+ y.toString());
+
+            // on résoud le second system
+            system.setSecondMembre(y);
+
+            // etant donné que system.matriceSystem est déjà en LDR
+            // on a besoin que de la resolution partielle
+            Vecteur x = system.resolutionPartielle();
+
+
+            // le résultat est dans x
+            System.out.println("Vecteur x: \n"+ x.toString());
+
+
+            // calculer la norme de A²x-b
+            Matrice A_puissance_2 = Matrice.produit(matriceCopy, matriceCopy);
+            Matrice m = Matrice.soustraction(
+                    Matrice.produit(A_puissance_2, x)
+                    ,
+                    secondMembre
+            );
+
+            Vecteur v = new Vecteur(m);
+            double L1_norme =  v.L1_norme();
+            double L2_norme =  v.L2_norme();
+            double Linf_norme =  v.Linf_norme();
+
+
+            // Vérification si les normes sont inférieures à l'epsilon numérique
+
+            if (L1_norme < Matrice.numerical_epsilon) {
+                System.out.println("Test réussi, L1_norme de (Ax - b) est suffisamment petite.");
+            } else {
+                System.out.println("L1_norme: "+ L1_norme);
+                System.out.println("Test échoué, L1_norme de (Ax - b) est trop grande.");
+            }
+
+            if (L2_norme < Matrice.numerical_epsilon) {
+                System.out.println("Test réussi, L2_norme de (Ax - b) est suffisamment petite.");
+            } else {
+                System.out.println("L2_norme: "+ L2_norme);
+                System.out.println("Test échoué, L2_norme de (Ax - b) est trop grande.");
+            }
+
+            if (Linf_norme < Matrice.numerical_epsilon) {
+                System.out.println("Test réussi, Linf_norme de (Ax - b) est suffisamment petite.");
+            } else {
+                System.out.println("Linf_norme: "+ Linf_norme);
+                System.out.println("Test échoué, Linf_norme de (Ax - b) est trop grande.");
+            }
+
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
 
     }
 }

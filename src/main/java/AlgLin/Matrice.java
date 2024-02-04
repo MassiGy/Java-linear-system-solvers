@@ -10,10 +10,18 @@ public class Matrice {
     // epsilon numérique pour les test.
     public final static double numerical_epsilon = 0.000001;
 
+
+
     /** Définir ici les constructeur de la classe **/
+    Matrice() {}
+
+
     Matrice (int nbligne, int nbcolonne){
         this.coefficient = new double[nbligne][nbcolonne];
     }
+
+
+
 
     Matrice(double[][] tableau){
 
@@ -27,6 +35,21 @@ public class Matrice {
             for (int j = 0; j < coefficient[i].length; j++) {
                 coefficient[i][j] = tableau[i][j];
             }
+        }
+    }
+    Matrice(BufferedReader bufferedReader){
+        try {
+            Scanner sc  = new Scanner(bufferedReader);
+            int ligne = sc.nextInt();
+            int colonne = sc.nextInt();
+            this.coefficient = new double[ligne][colonne];
+            for(int i=0; i<ligne;i++)
+                for(int j=0; j< colonne; j++)
+                    this.coefficient[i][j]=sc.nextDouble();
+            sc.close();
+        }
+        catch(Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -191,7 +214,15 @@ public class Matrice {
         double mat[][]= {{2,1},{0,1}};
         Matrice a = new Matrice(mat);
         System.out.println("construction d'une matrice par affectation d'un tableau :\n"+a);
-        Matrice b = new Matrice("matrice1.txt");
+
+        ClassLoader classLoader = Helder.class.getClassLoader();
+        // lire le fichier de la matrice
+        File configFile= new File(classLoader.getResource("matrice.txt").getFile());
+        FileInputStream inputStream = new FileInputStream(configFile);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+        Matrice b = new Matrice(reader);
+
         System.out.println("Construction d'une matrice par lecture d'un fichier :\n"+b);
         Matrice c = new Matrice(2,2);
         c.recopie(b);

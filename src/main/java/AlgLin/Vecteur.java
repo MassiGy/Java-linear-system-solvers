@@ -1,5 +1,7 @@
 package AlgLin;
 
+import java.io.BufferedReader;
+
 public class Vecteur extends Matrice{
 
 
@@ -45,6 +47,9 @@ public class Vecteur extends Matrice{
         super(fichier);
     }
 
+    public Vecteur(BufferedReader reader){
+        super(reader);
+    }
 
     /*
         Une méthode qui renvoie la taille du Vecteur
