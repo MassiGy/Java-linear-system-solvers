@@ -188,7 +188,7 @@ public class Helder extends SysLinAbstract {
                     { 3, -1,  3},
             };
 
-            Vecteur sMembre = new Vecteur(new double[]{3, 5, 8});
+           Vecteur sMembre = new Vecteur(new double[]{3, 5, 8});
 
             Matrice matrice = new Matrice(tab);
 
@@ -291,6 +291,7 @@ public class Helder extends SysLinAbstract {
             assert(system.factorLDR() == true);
 
             // résolution partielle pour
+
             /*
                 on a A*A*x = b
                 ce qui nous donne A*LDR*x = b
