@@ -1,5 +1,7 @@
 package AlgLin;
 
+import Exceptions.IllegalOperationException;
+
 import java.io.*;
 import java.util.*;
 
@@ -209,6 +211,53 @@ public class Matrice {
             }
         return mat;
     }
+
+    public Matrice inverse() throws Exception {
+        if(this.nbColonne() != this.nbLigne()) {
+            throw  new IllegalOperationException("la matrice doit être une matrice carré");
+        }
+
+        // créer une matrice qui sera le résultat
+        Matrice inverse = new Matrice(this.nbLigne(), this.nbColonne());
+
+        double[] secondMembreTableau;
+        Vecteur secondMembre;
+        Helder system = null;
+
+        for (int i = 0; i < this.nbLigne(); i++) {
+
+            // créer le tableau pour le second membre
+            secondMembreTableau = new double[this.nbLigne()];
+
+            // mettre le bon coeff en 1
+            secondMembreTableau[i] = 1;
+
+
+            // set le second membre
+            secondMembre = new Vecteur(secondMembreTableau);
+
+            if (system == null){
+                system = new Helder(this, secondMembre);
+                system.factorLDR();
+            }
+            else{
+                system.setSecondMembre(secondMembre);
+            }
+
+            // résolution du system
+            Vecteur iemeColonneDelInverse  = system.resolutionPartielle();
+
+            // copie des valeur de iemeColonneDeLInverse sur la ieme colonne de inverse
+            for (int j = 0; j < iemeColonneDelInverse.nbLigne(); j++) {
+                inverse.remplacecoef(i,j, iemeColonneDelInverse.getCoef(j));
+            }
+        }
+
+        return inverse;
+    }
+
+
+
 
     public static void main(String[] args) throws Exception {
         double mat[][]= {{2,1},{0,1}};
