@@ -4,6 +4,9 @@ import Exceptions.IllegalOperationException;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class Matrice {
     /** Définir ici les attributs de la classe **/
@@ -98,6 +101,13 @@ public class Matrice {
         this.coefficient[ligne][colonne]=value;
     }
 
+    public static Matrice getIdentite(int ordre){
+        Matrice m = new Matrice(ordre, ordre);
+        for (int i = 0 ; i < ordre ; i++)
+            m.remplacecoef(i, i, 1);
+        return m;
+    }
+
     public String toString(){
         int ligne = this.nbLigne();
         int colonne = this.nbColonne();
@@ -180,12 +190,12 @@ public class Matrice {
         colonne = b.nbColonne();
         Matrice mat = new Matrice(ligne, colonne);
         for(int i=0; i<ligne;i++)
-            for(int j=0; j< colonne; j++)
-            {
+            for(int j=0; j< colonne; j++) {
                 mat.coefficient[i][j]=0;
                 for(int k=0; k <a.nbColonne();k++)
                     mat.coefficient[i][j] += a.coefficient[i][k] * b.coefficient[k][j];
             }
+
         return mat;
     }
 
@@ -217,6 +227,10 @@ public class Matrice {
             throw  new IllegalOperationException("la matrice doit être une matrice carré");
         }
 
+        // créer une matrice copie de la courrent
+        Matrice matriceCourrante = new Matrice(this.coefficient);
+
+
         // créer une matrice qui sera le résultat
         Matrice inverse = new Matrice(this.nbLigne(), this.nbColonne());
 
@@ -237,7 +251,7 @@ public class Matrice {
             secondMembre = new Vecteur(secondMembreTableau);
 
             if (system == null){
-                system = new Helder(this, secondMembre);
+                system = new Helder(matriceCourrante, secondMembre);
                 system.factorLDR();
             }
             else{
@@ -249,13 +263,57 @@ public class Matrice {
 
             // copie des valeur de iemeColonneDeLInverse sur la ieme colonne de inverse
             for (int j = 0; j < iemeColonneDelInverse.nbLigne(); j++) {
-                inverse.remplacecoef(i,j, iemeColonneDelInverse.getCoef(j));
+                inverse.remplacecoef(j,i, iemeColonneDelInverse.getCoef(j));
             }
         }
 
         return inverse;
     }
 
+
+    public double L1_norme() {
+        double max = 0;
+        double sum = 0;
+        for (int j = 0; j < nbColonne(); j++) {
+            sum = 0;
+            for (int i = 0; i < nbLigne(); i++)
+                sum += Math.abs(this.getCoef(i, j));
+
+            if (max < sum) {
+                max = sum;
+            }
+        }
+        return max;
+    }
+
+    public double Linf_norme() {
+        double max = 0;
+        double sum = 0;
+        for (int i = 0; i < nbLigne(); i++) {
+
+            sum = 0;
+            for (int j = 0; j < nbColonne(); j++)
+                sum += Math.abs(this.getCoef(i, j));
+
+            if (max < sum) {
+                max = sum;
+            }
+        }
+        return max;
+    }
+
+    public static double L1_norme(Matrice cible) {
+        return cible.L1_norme();
+    }
+    public static double Linf_norme(Matrice cible){
+        return cible.Linf_norme();
+    }
+
+    public double calcConditionnement(Function<Matrice,Double> fnCalcNorme) throws Exception{
+        double normeMatriceCourrante = fnCalcNorme.apply(this);
+        double normeMatriceInverse = fnCalcNorme.apply(this.inverse());
+        return normeMatriceCourrante * normeMatriceInverse;
+    }
 
 
 
@@ -291,6 +349,75 @@ public class Matrice {
                 "puis de leur produit");
         System.out.println("matrice 1 :\n"+a+"matrice 2 :\n"+b+"produit :\n"+
                 produit(a,b));
+
+
+
+        // test de l'inverse;
+        System.out.println("####################################################");
+
+        // exemple pris de :http://www.jybaudot.fr/Vecteursmatrices/matinverse.html
+
+        double[][] tabMatrice = new double[][]{
+                {1,2,1},
+                {3,5,0},
+                {4,2,6},
+        };
+        double[][] tabIdentite = new double[][]{
+                {1,0,0},
+                {0,1,0},
+                {0,0,1},
+        };
+
+
+
+        // création de la matrice identité
+        Matrice identite = new Matrice(tabIdentite);
+
+
+        // création de la matrice et d'une copie
+        Matrice A = new Matrice(tabMatrice);
+        Matrice ACopie = new Matrice(tabMatrice);
+
+
+        // verifier que le produit marche
+        // System.out.println(Matrice.produit(A, identite));
+
+        // calc de l'inverse
+        Matrice inverseDeA = A.inverse();
+
+        // afficher de l'inverse
+        // System.out.println(inverseDeA);
+
+
+        // calc du produit A*A⁻¹
+        Matrice produitAetInverse = Matrice.produit(ACopie, inverseDeA);
+
+
+        // afficher le produit ( doit être proche de l'id )
+        // System.out.println(produitAetInverse);
+
+
+        // calc de la diff entre produitA et son inverse et l'id
+        Matrice diff = Matrice.soustraction(produitAetInverse, identite);
+
+        // System.out.println(diff);
+
+        // calcule de la norme de la diff
+        double L1_norme = diff.L1_norme();
+        double Linf_norme = diff.Linf_norme();
+
+        if (L1_norme < Matrice.numerical_epsilon) {
+            System.out.println("Test réussi, L1_norme de (AA⁻¹-ID) est suffisamment petite.");
+        } else {
+            System.out.println("Test échoué, L1_norme de (AA⁻¹-ID) est trop grande.");
+        }
+
+        if (Linf_norme < Matrice.numerical_epsilon) {
+            System.out.println("Test réussi, Linf_norme de (AA⁻¹-ID) est suffisamment petite.");
+        } else {
+            System.out.println("Test échoué, Linf_norme de (AA⁻¹-ID) est trop grande.");
+        }
+
     }
 
 }
