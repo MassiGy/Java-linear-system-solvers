@@ -93,7 +93,6 @@ public class HilbertMatrice extends Matrice {
                 // calc de l'inverse de hm
                 Matrice inverseHm = hm.inverse();
 
-                System.out.println("Inverse de la matrice de Hilbert d'ordre " + ordre + ": \n" + inverseHm);
                 System.out.println("Son conditionnement avec L1: " + hmCopie.calcConditionnement((m) -> Matrice.L1_norme(m)));
                 System.out.println("Son conditionnement avec Linf: " + hmCopie.calcConditionnement((m) -> Matrice.Linf_norme(m)));
 
