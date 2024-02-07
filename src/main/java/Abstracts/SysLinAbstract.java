@@ -45,6 +45,8 @@ public abstract class SysLinAbstract {
             throw new IrregularSysLinException("La matrice doit être carrée et de même taille que le second membre.");
         }
     }
+
+
     public int getOrdre(){
         return this.ordre;
     }
