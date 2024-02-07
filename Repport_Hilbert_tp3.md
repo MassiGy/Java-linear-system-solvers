@@ -19,18 +19,18 @@
 - On calcule son inverse.
 - On calcule, Mprime, le produit entre la matrice ( une copie ) et son inverse.
 - On calcule la différence entre Mprime et la matrice identité du même ordre.
-- On calcule et on affiche la valeur des normes matricielle L1 et L infinie.
+- On calcule et on affiche la valeur des normes matricielles L1 et L infinie.
 - On calcule et on affiche la valeur du conditionnement de la matrice suivant les deux normes.
 
 
 
 
-### Résultat des tests :
+### Résultats des tests :
 
 
 **Note:**
 
-> Les tests se base sur l'instanciation d'une matrice Hilbert d'ordre i € {3..15}, suivi par
+> Les tests se basent sur l'instanciation d'une matrice Hilbert d'ordre i € {3..15}, suivi par
 > le calcule de son inverse.
 > Pour cela, les tests ci-dessous sont éxectués en boucle sans aucune interaction nécessaire de la
 > part de l'utilisateur. Toutefois, le test qui nécessite l'interaction de l'utilisateur ( le test
@@ -119,32 +119,32 @@ Test échoué, norme_inf(AA^-1 - I) est trop grande: 10.989230697974563
 
 ```
 
-### Analyse et commentaires sur les résultats des tests: 
+### Analyse et commentaires sur les résultats des tests:
 
 - *Quand i € {3..8}*
 
-On voit que les deux normes sont inférieures au epsilon numérique perdefini, cela
+On voit que les deux normes sont inférieures au epsilon numérique prédéfini, cela
 est illustré par le message qui affiche leurs valeurs et que le test est bien réussi.
 
 
 - *Quand i € {9..15}*
 
-On voit que les deux normes sont inférieures au epsilon numérique predefini, cela est 
+On voit que les deux normes sont inférieures au epsilon numérique prédéfini, cela est
 illustré par le message qui affiche leurs valeurs et que le test est bien réussi.
 
 
 **Explication brève:**
 
 
-Le fait que les normes dépasse la valeur du epsilon numérique predefini est dû au fait que:
+Le fait que les normes dépassent la valeur du epsilon numérique prédéfini est dû au fait que:
 
-- Les matrice de Hilbert sont des matrice mal conditionnées.
+- Les matrices de Hilbert sont des matrices mal conditionnées.
 
 > https://fr.wikipedia.org/wiki/Matrice_de_Hilbert
 
-- Nos tests effectuent plusieurs calculs matriciels différents sur des matrice 
-Hilbert, qui sont constituées que de fractions. Par conséquent, les erreurs de calcul
-se propagent et s'emplifient, ce qui fait que les résultats finaux soient surprenants.
+- Nos tests effectuent plusieurs calculs matriciels différents sur des matrices
+Hilbert, qui ne sont constituées que de fractions. Par conséquent, les erreurs de calcul
+se propagent et s'amplifient, ce qui fait que les résultats finaux soient surprenants.
 
 
 
