@@ -13,7 +13,7 @@
 
 ##### `Mat3Diag.java`:
 
-Cette classe contient les constructeur demandés, mais aussi une méthode pour le calcule
+Cette classe contient les constructeurs demandés, mais aussi une méthode pour le calcul
 du produit entre un vecteur et une matrice tridiagonale. Chaque matrice tridiagonale
 instanciée avec cette classe aura un tableau de trois lignes et n == dim(matrice) colonnes.
 
@@ -24,23 +24,14 @@ exploite cette conception pour faciliter et accélérer le calcul.
 ##### `Thomas.java`:
 
 Cette classe hérite de la classe abstraite `SysLinAbstract.java`, et donc c'est une classe
-qui représente un système linéaire. Ici, le système fait entrer en jeu une matrice tridiagonale,
+qui représente un système linéaire. Ici, le système fait entrer en jeu une matrice tri-diagonale,
 et pour cela on peut utiliser le constructeur qui prend une matrice carré équivalente à la matrice
-tridiagonale de notre système (avec des coefficients à 0 ), et aussi un tableau de trois lignes et
+tri-diagonale de notre système (avec des coefficients à 0 ), et aussi un tableau de trois lignes et
 n == dim(matrice) colonnes qui contiendront que les diagonales. Cela est une conséquence du fait que
 Le constructeur de SysLin vérifie si la matrice passée en paramètre est bien carrée.
 
 Le tableau des diagonales est un attribut d'instance, et son rôle est de simplifier le calcul pour
 les tests.
-
-
-
-
-
-
-
-
-
 
 
 
@@ -51,7 +42,7 @@ les tests.
 **Déroulé:**
 
 - Instancier une matrice Mat3Diag d'un ordre donné.
-- Instancier une matrice carrée équivalente à la matrice tridiagonale.
+- Instancier une matrice carrée équivalente à la matrice tri-diagonale.
 - Instancier un vecteur qui sera notre second membre.
 - Instancier la classe Thomas avec la matrice carrée équivalente et le second membre.
 - Résolution du système en passant par la méthode de résolution de la classe Thomas.java
