@@ -5,14 +5,20 @@ import Exceptions.IrregularSysLinException;
 
 public class Thomas extends SysLinAbstract {
 
-    public Thomas(Matrice matrice, Vecteur vect) throws IrregularSysLinException {
+    double[][] lesDiagonales;
+
+    public Thomas(Matrice matrice, Vecteur vect, double[][] lesDiagonales) throws IrregularSysLinException {
         super(matrice, vect);
+
+        // pour simplifier le calc de la resolution du matrice
+        this.lesDiagonales = lesDiagonales;
 
         // s'assurer que la matrice carrée passé est bien un matrice tridiagonal;
         if(!Thomas.assertMatrice3Diag(matrice)){
             throw new IrregularSysLinException("Matrice passée en parametres est non triDiag");
         }
     }
+
 
     protected static boolean assertMatrice3Diag(Matrice cible) {
         for (int i = 0; i < cible.nbLigne(); i++) {
@@ -81,8 +87,8 @@ public class Thomas extends SysLinAbstract {
 
 
         // setup les tableau pour les qn et les pn
-        double[] Qs = new double[matriceSystem.nbColonne()-1];
-        double[] Ps = new double[matriceSystem.nbColonne()-1];
+        double[] Qs = new double[matriceSystem.nbColonne()];
+        double[] Ps = new double[matriceSystem.nbColonne()];
 
         // set la premiere valeurs pour ces tableau
         Qs[0] = q1;
@@ -90,10 +96,15 @@ public class Thomas extends SysLinAbstract {
 
         // pour la suite, on va extraire de la matrice triDiag le tab
         // des Cs et des Bs et des As
-        double[] Cs = matriceSystem.coefficient[0];      // sur diagonale
-        double[] Bs = matriceSystem.coefficient[1];      // diagonale
-        double[] As = matriceSystem.coefficient[2];      // sous diagonale
-        double[] Ds = secondMembre.coefficient[0];       // juste pour suivre la notation de la formule
+        double[] Cs = lesDiagonales[0];      // sur diagonalelesDiagonales;
+        double[] Bs = lesDiagonales[1];      // diagonale
+        double[] As = lesDiagonales[2];      // sous diagonale
+        double[] Ds = new double[secondMembre.nbLigne()];       // juste pour suivre la notation de la formule
+
+        for (int i = 0; i < Ds.length; i++) {
+            Ds[i] = secondMembre.getCoef(i);
+        }
+
 
         double denum = 1;
         double numerateur =1;
@@ -109,19 +120,14 @@ public class Thomas extends SysLinAbstract {
             numerateur = -1 * Cs[i];
             denum = As[i] * Ps[i-1] + Bs[i];
 
-            if (denum == 0 )
+            if (denum == 0.0)
                 throw new IrregularSysLinException("Division par 0");
 
             Ps[i] = numerateur/denum;
 
 
             numerateur = Ds[i] - As[i] * Qs[i-1];
-            denum = As[i] * Ps[i-1] + Bs[i];
-
-
-            if (denum == 0 )
-                throw new IrregularSysLinException("Division par 0");
-
+            // denum = As[i] * Ps[i-1] + Bs[i];         // le denum ne change pas
 
             Qs[i] = numerateur / denum ;
 
@@ -136,25 +142,28 @@ public class Thomas extends SysLinAbstract {
 
         int n = Bs.length;      // n est la dim de la triDiag ( donc la long de la diag)
 
-        if (As[n - 1] * Ps[n - 1 - 1] + Bs[n - 1] == 0)
-            throw new IrregularSysLinException("Division par 0");
 
         // set le tableau pour les Xn
-        double[] Xs = solution.coefficient[0];      // les xn,xn-1...,x0 sont les coeff du vect solution
+        double[][] Xs = solution.coefficient;      // les xn,xn-1...,x0 sont les coeff du vect solution
 
         numerateur = Ds[n-1] - As[n-1] * Qs[n-1-1];
         denum = As[n-1] * Ps[n-1-1] + Bs[n-1];
 
+        if (denum == 0.0)
+            throw new IrregularSysLinException("Division par 0");
 
-        Xs[n-1] = numerateur /denum;
+        Xs[n-1][0] = numerateur /denum;
 
 
         // parcourir le tableau de la fin vers le debut et calculer
-        for (int i = n-1-1; i >= 0; i++) {
+        for (int i = n-1-1; i >= 0; i--) {
             /*
                 xk = pk * xk+1 + qk , 1 ≤ k ≤ n − 1
              */
-            Xs[i] = Ps[i] * Xs[i+1] + Qs[i];
+
+            System.out.println("i:"+i);
+
+            Xs[i][0] = Ps[i] * Xs[i+1][0] + Qs[i];
         }
 
 
@@ -164,13 +173,88 @@ public class Thomas extends SysLinAbstract {
     }
 
 
-    public static void main(String[] args) {
-        // @Todo: add tests
+    public static void main(String[] args){
+
+        try {
+            // exemple tiré du td 2
+            // créer le second membre
+            Vecteur secondMembre = new Vecteur(new double[]{-2, -2, -2, 23});
+
+            System.out.println(secondMembre);
+
+            // mettre en place le tableau des diagonales
+            double[][] tab = new double[][]{
+                    {-1, -1, -1,0},     // sur diagoanle (cn  = 0)
+                    {2, 2, 2, 2 },       // diagonale
+                    {0,-1, -1, -1},     // sous diagonal (a0 = 0)
+            };
+
+
+            // créer la matrice tridiag avec la classe Mat3Diag
+            // celle ci prend un tab de 3 ligne uniquement
+            Mat3Diag mat3Diag = new Mat3Diag(tab);
+
+
+            // créer la matrice tridiag avec la classe Matrice pour avoir
+            // une copie carré, car la classe Thomas hérite de SysLinABstract
+            // et celleci prends que des matrice carrés ( mauvaise conception )
+            Matrice matriceCarreEquivalente = new Matrice(new double[][]{
+                    {2,    -1,  0,    0},
+                    {-1,    2, -1,    0},
+                    {0,    -1,  2,   -1},
+                    {0,     0, -1,    2},
+            });
+
+            Thomas system = new Thomas(matriceCarreEquivalente, secondMembre, tab);
+
+            Vecteur solution = system.resolution();
+            System.out.println(solution);   // pour comparer le résultat avec celui du corrigé du Td2
+
+
+            // calcule du produit de la matrice et du vecteur solution
+            // on utilisera la methode de la classe Mat3Diag
+            Vecteur produitMatrice3diagEtVectSolution = Mat3Diag.produit(mat3Diag,solution);
+
+            System.out.println("produitMatrice3diagEtVectSolution:\n" + produitMatrice3diagEtVectSolution);
+
+
+            // calcule de m*solution-secondMembre
+            Matrice resultatSoustraction = Matrice.soustraction(produitMatrice3diagEtVectSolution, secondMembre);
+
+
+            System.out.println("resultat soustraction: \n"+resultatSoustraction);
+
+
+            // calcule de la norme de la soustraction
+            double L1_norme = resultatSoustraction.L1_norme();
+            double Linf_norme = resultatSoustraction.Linf_norme();
+
+
+            if (L1_norme < Matrice.numerical_epsilon) {
+                System.out.println("Test réussi, L1_norme de (Ax - b) est suffisamment petite.");
+            } else {
+                System.out.println("L1_norme: "+ L1_norme);
+                System.out.println("Test échoué, L1_norme de (Ax - b) est trop grande.");
+            }
+
+
+            if (Linf_norme < Matrice.numerical_epsilon) {
+                System.out.println("Test réussi, Linf_norme de (Ax - b) est suffisamment petite.");
+            } else {
+                System.out.println("Linf_norme: "+ Linf_norme);
+                System.out.println("Test échoué, Linf_norme de (Ax - b) est trop grande.");
+            }
+
+
+
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
-
-
-
 
 
 

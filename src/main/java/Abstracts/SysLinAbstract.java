@@ -46,7 +46,6 @@ public abstract class SysLinAbstract {
         }
     }
 
-
     public int getOrdre(){
         return this.ordre;
     }
