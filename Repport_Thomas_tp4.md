@@ -1,4 +1,5 @@
-# Rapport sur la résolution des systèmes tridiagonaux avec la méthode de Thomas
+
+# Rapport sur la résolution des systèmes tri-diagonaux avec la méthode de Thomas
 
 
 
@@ -17,17 +18,17 @@ du produit entre un vecteur et une matrice tridiagonale. Chaque matrice tridiago
 instanciée avec cette classe aura un tableau de trois lignes et n == dim(matrice) colonnes.
 
 La première ligne du tableau est pour la sur-diagonale. La deuxième est pour la diagonale,
-et la dernière est pour la sous-diagonale. D'ailleurs, la methode de calcul de produit,
+et la dernière est pour la sous-diagonale. D'ailleurs, la méthode de calcul de produit,
 exploite cette conception pour faciliter et accélérer le calcul.
 
 ##### `Thomas.java`:
 
 Cette classe hérite de la classe abstraite `SysLinAbstract.java`, et donc c'est une classe
-qui représente un système linéaire. Ici, le système faire rentrer en jeu une matrice tridiagonale,
-et pour cela on peut utiliser le constructeur qui prend une matrice carré equivalente à la matrice
+qui représente un système linéaire. Ici, le système fait entrer en jeu une matrice tridiagonale,
+et pour cela on peut utiliser le constructeur qui prend une matrice carré équivalente à la matrice
 tridiagonale de notre système (avec des coefficients à 0 ), et aussi un tableau de trois lignes et
-n == dim(matrice) colonnes qui contiendra que les diagonales. Cela est une concéquence du fait que
-le constructeur de SysLin vérifie si la matrice passée en paramètre est bien carrée.
+n == dim(matrice) colonnes qui contiendront que les diagonales. Cela est une conséquence du fait que
+Le constructeur de SysLin vérifie si la matrice passée en paramètre est bien carrée.
 
 Le tableau des diagonales est un attribut d'instance, et son rôle est de simplifier le calcul pour
 les tests.
@@ -50,7 +51,7 @@ les tests.
 **Déroulé:**
 
 - Instancier une matrice Mat3Diag d'un ordre donné.
-- Instancier une matrice carrée équivalent à la matrice tridiagonale.
+- Instancier une matrice carrée équivalente à la matrice tridiagonale.
 - Instancier un vecteur qui sera notre second membre.
 - Instancier la classe Thomas avec la matrice carrée équivalente et le second membre.
 - Résolution du système en passant par la méthode de résolution de la classe Thomas.java
@@ -64,10 +65,10 @@ solution d'une part, et du second membre d'autre part )
 
 **Notes:**
 
-> Le cas de test utilisé est l'exemple du td 2.
+> Le cas de test utilisé est l'exemple du TD 2.
 
 
-Les résultats sont positifs, ce qui veux dire que la norme L1 et L infinie de Ax-b est
+Les résultats sont positifs, ce qui veut dire que la norme L1 et L infinie de Ax-b est
 bien inférieure au epsilon numérique prédéfini.
 
 ```txt
@@ -82,7 +83,7 @@ A :=
 
 
 tridiag(A) :=
-                    {-1, -1, -1,0},     // sur diagoanle (cn  = 0)
+                    {-1, -1, -1,0},     // sur diagonale (cn  = 0)
                     {2, 2, 2, 2 },      // diagonale
                     {0,-1, -1, -1},     // sous diagonal (a0 = 0)
 
@@ -102,6 +103,7 @@ Ax-b := {0.0, -8.881784197001252E-16, -1.7763568394002505E-15, 0.0 }
 -> norme L infini < epsilon
 
 ```
+
 
 
 
