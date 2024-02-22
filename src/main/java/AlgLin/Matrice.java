@@ -13,7 +13,7 @@ public class Matrice {
     protected double coefficient[][];
 
     // epsilon numérique pour les test.
-    public final static double numerical_epsilon = 0.000001;
+    public final static double numerical_epsilon = 0.00001;
 
 
 

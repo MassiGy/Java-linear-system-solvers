@@ -35,7 +35,7 @@ public class Helder extends SysLinAbstract {
                 }
                 Lval = this.matriceSystem.getCoef(i,j) - Lval;
 
-                if(Lval == Double.valueOf(0)) return false;
+                if(this.matriceSystem.getCoef(j,j) == Double.valueOf(0)) return false;
 
                 Lval = Lval / this.matriceSystem.getCoef(j,j);
 
@@ -55,7 +55,7 @@ public class Helder extends SysLinAbstract {
 
             // pour R
             double Rval = 0;
-            for (int j = i +1; j < n; j++) {
+            for (int j = i+1; j < n; j++) {
                 Rval = 0;
                 for (int k = 0; k < i; k++) {
                     Rval += this.matriceSystem.getCoef(i, k) *
@@ -65,7 +65,7 @@ public class Helder extends SysLinAbstract {
 
                 Rval = this.matriceSystem.getCoef(i, j) - Rval;
 
-                if(Rval == Double.valueOf(0)) return false;
+                if(this.matriceSystem.getCoef(i,i) == Double.valueOf(0)) return false;
 
                 Rval = Rval / this.matriceSystem.getCoef(i, i);
                 this.matriceSystem.remplacecoef(i,j, Rval);
@@ -81,7 +81,8 @@ public class Helder extends SysLinAbstract {
      */
     public Vecteur resolution(){
         // on factorise puis on trouve la solution.
-        assert(factorLDR() == true);        // factorisation s'est bien passée
+        boolean estFactorisee = factorLDR();
+        assert(estFactorisee == true);        // factorisation s'est bien passée
         return resolutionPartielle();
     }
     /*
@@ -139,7 +140,9 @@ public class Helder extends SysLinAbstract {
 
 
     private Matrice multiplieLDR(Matrice LDR) {
-
+        /*
+            @todo: la multiplication n'est pas correcte.
+         */
         Matrice L   = new Matrice(this.getOrdre(), this.getOrdre());
         Matrice D   = new Matrice(this.getOrdre(), this.getOrdre());
         Matrice R   = new Matrice(this.getOrdre(), this.getOrdre());
@@ -181,6 +184,7 @@ public class Helder extends SysLinAbstract {
         try{
 
             System.out.println("\n\n");
+            System.out.println("Test: Verification de la factorisation");
 
             double[][] tab = {
                     { 1, 1,  -2},
@@ -194,7 +198,8 @@ public class Helder extends SysLinAbstract {
 
             Helder system = new Helder(matrice, sMembre);
 
-            assert(system.factorLDR() == true);
+            boolean estFactorisee = system.factorLDR();
+            assert(estFactorisee == true);        // factorisation s'est bien passée
 
             // afficher la factorisation de la matrice en LDR
             System.out.println("Matrice après factorisation");
@@ -214,56 +219,15 @@ public class Helder extends SysLinAbstract {
         }
 
 
-        // tester avec un exemple arbitraire
-        try{
-
-            System.out.println("\n\n");
-
-            double[][] tab = {
-                    { 1, 2,  3,  4},
-                    {-2, 3,  6, -1},
-                    { 3, 4, -6,  2},
-                    {-5, 2,  3, -1}
-            };
-
-            Vecteur sMembre = new Vecteur(new double[]{3, 7, 2, -1});
-
-            Matrice matrice = new Matrice(tab);
-            Helder system = new Helder(matrice, sMembre);
-
-
-            assert(system.factorLDR() == true);
-
-            // afficher la factorisation de la matrice en LDR
-            System.out.println("Matrice après factorisation");
-            System.out.println(system.matriceSystem);
-
-            // afficher le resultat du produit L*D*R, verifier == matrice ?
-
-            System.out.println("Résultat du produit L*D*R");
-            Matrice produitLDR = system.multiplieLDR(system.matriceSystem);
-            System.out.println(produitLDR);
-
-            // comparer les deux
-            System.out.print("L*D*R ==? system.matrice: ");
-            System.out.println(Matrice.checkEquality(new Matrice(tab), produitLDR, Matrice.numerical_epsilon));
-
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
 
 
         // tester avec A²x = b
         try {
             System.out.println("\n\n");
+            System.out.println("Test: Resolution A²x = b \n");
 
             // acceder au dossier ressource
             ClassLoader classLoader = Helder.class.getClassLoader();
-
-            // lire d'un fichier le matrice et le second membre
-
-
 
             // lire le fichier de la matrice
             File configFile= new File(classLoader.getResource("matrice.txt").getFile());
@@ -287,8 +251,10 @@ public class Helder extends SysLinAbstract {
             Helder system = new Helder(matrice,secondMembre);
 
             System.out.println("A: \n"+ system.matriceSystem.toString());
+
             // factoriser la matrice en LDR
-            assert(system.factorLDR() == true);
+            boolean estFactorisee = system.factorLDR();
+            assert(estFactorisee == true);        // factorisation s'est bien passée
 
             // résolution partielle pour
 
@@ -353,9 +319,6 @@ public class Helder extends SysLinAbstract {
                 System.out.println("Linf_norme: "+ Linf_norme);
                 System.out.println("Test échoué, Linf_norme de (Ax - b) est trop grande.");
             }
-
-
-
 
         } catch (Exception e) {
             e.printStackTrace();
